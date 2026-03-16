@@ -1,0 +1,69 @@
+# clearstream-fcc-analytics
+# Central configuration — all thresholds and paths in one place
+
+paths:
+  sanctions_master:   data/raw/sanctions/combined_master.csv
+  mt103:              data/generated/transactions_mt103.csv
+  mt202:              data/generated/transactions_mt202.csv
+  mt540:              data/generated/transactions_mt540.csv
+  combined:           data/generated/transactions_combined.csv
+  ground_truth:       data/generated/ground_truth_labels.csv
+  alerts_output:      data/processed/alerts.csv
+  summary_output:     data/processed/summary_stats.csv
+  report_output:      reports/fcc_compliance_report.xlsx
+
+pipeline:
+  chunk_size: 10000         # rows processed at a time (memory safe)
+  fuzzy_match_threshold: 85 # minimum score for fuzzy name match (0-100)
+
+aml_rules:
+  # Structuring — deliberate splitting below reporting threshold
+  structuring:
+    threshold_eur: 9999       # just below EU/FATF reporting threshold
+    min_transactions: 3       # minimum txns to form a cluster
+    window_hours: 72          # time window to look back
+    same_sender: true
+
+  # Velocity — abnormal transaction frequency
+  velocity:
+    max_transactions_per_hour: 20
+    max_transactions_per_day:  50
+    window_hours: 24
+
+  # Large cash / single transaction
+  large_transaction:
+    threshold_eur: 1000000    # EUR 1M single transaction flag
+    high_risk_threshold_eur: 100000  # Lower threshold for high-risk countries
+
+  # Round-tripping — funds leave and return
+  round_trip:
+    window_days: 7
+    min_hops: 3
+
+sanctions_screening:
+  # Which fields to screen per message type
+  mt103_fields:
+    - sender_name
+    - receiver_name
+  mt202_fields:
+    - ordering_institution_name
+    - beneficiary_institution_name
+  mt540_fields:
+    - delivering_party_name
+    - receiving_party_name
+
+  # FATF high-risk jurisdictions (as of 2025)
+  high_risk_countries:
+    - AF   # Afghanistan
+    - KP   # North Korea
+    - IR   # Iran
+    - MM   # Myanmar
+    - SY   # Syria
+    - YE   # Yemen
+    - IQ   # Iraq
+    - LY   # Libya
+    - SS   # South Sudan
+    - PK   # Pakistan
+    - NG   # Nigeria
+    - AE   # UAE (enhanced monitoring)
+    - TR   # Turkey

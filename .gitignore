@@ -1,0 +1,6 @@
+data/generated/*.csv
+data/processed/
+__pycache__/
+*.pyc
+.env
+Terminial-Result.docx

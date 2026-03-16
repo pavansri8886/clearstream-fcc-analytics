@@ -1,0 +1,23 @@
+uid,name,name_aliases,type,programme,list,country,country_full,city,address,id_type,id_number,effective_date,remarks
+OFAC-7114,BANK MELLI IRAN,BANK MELLI|MELLI BANK|BANK MELLI IRAN JSC,Entity,IRAN,SDN,IR,Iran,Tehran,"Ferdowsi Avenue, Tehran",SWIFT,BKMEIRTE,2008-10-22,State-owned bank
+OFAC-7115,BANK SADERAT IRAN,BANK SADERAT|BSI|BANK SADERAT PLC,Entity,IRAN,SDN,IR,Iran,Tehran,"Somayeh Street, Tehran",SWIFT,BSIRIRTE,2007-09-08,State-owned bank
+OFAC-7320,BANK MELLAT,MELLAT BANK|BANK MELLAT JSC,Entity,IRAN,SDN,IR,Iran,Tehran,"Taleghani Avenue, Tehran",SWIFT,BKMTIRTE,2008-10-22,State-owned commercial bank
+OFAC-19002,IRAN AIR,IRAN AIR (HOMA)|HOMA AIRLINES|IRI AIRLINES,Entity,IRAN,SDN,IR,Iran,Tehran,"Iran Air Building, Mehrabad Airport",Registration,IA-001,2011-06-23,"State airline, IRGC linked"
+OFAC-9830,ISLAMIC REPUBLIC OF IRAN SHIPPING LINES,IRISL|IRISL GROUP|IRAN SHIPPING LINES,Entity,IRAN,SDN,IR,Iran,Tehran,"No. 37, Aseman Tower, Sayyad Shirazi",Registration,IRISL-001,2008-09-10,State shipping company
+OFAC-21342,PERSIAN GULF PETROCHEMICAL INDUSTRY COMMERCIAL CO,PGPICC|PERSIAN GULF PETROCHEM,Entity,IRAN,SDN,IR,Iran,Tehran,Shahid Lavasani Avenue,Registration,PGPICC-2019,2019-11-05,Petrochemical export
+OFAC-31001,SBERBANK,SBERBANK OF RUSSIA|SBERBANK ROSSII|SBER BANK,Entity,RUSSIA,SDN,RU,Russia,Moscow,"19 Vavilova Street, Moscow 117997",SWIFT,SABRRUMM,2022-02-24,Largest Russian state bank
+OFAC-31002,VTB BANK,VTB BANK PJSC|BANK VTB|VNESHTORGBANK,Entity,RUSSIA,SDN,RU,Russia,Moscow,"Vorontsovskaya Street 43-1, Moscow",SWIFT,VTBRRUMM,2022-02-24,State-owned bank
+OFAC-31003,GAZPROMBANK,GAZPROMBANK JSC|GPB|BANK GPB,Entity,RUSSIA,SDN,RU,Russia,Moscow,"Nametkina Street 16, Moscow 117420",SWIFT,GAZPRUMM,2022-06-02,Gazprom subsidiary bank
+OFAC-31004,ROSNEFT,ROSNEFT OIL COMPANY|ROSNEFT PJSC|NK ROSNEFT,Entity,RUSSIA,SDN,RU,Russia,Moscow,"Sofiyskaya Embankment 26/1, Moscow",Registration,1027700043502,2022-02-28,State oil company
+OFAC-31005,NOVATEK,PJSC NOVATEK|NOVATEK GAS,Entity,RUSSIA,SDN,RU,Russia,Moscow,"Pobedy Square 2, Tarko-Sale",Registration,1028900509659,2022-09-15,LNG producer
+OFAC-31006,ROSSIYA BANK,BANK ROSSIYA|ROSSIYA|OJSC BANK ROSSIYA,Entity,RUSSIA,SDN,RU,Russia,Saint Petersburg,Pochtamtskaya Street 2A,SWIFT,ROSIRUM1,2014-03-20,Bank of Russian elites
+OFAC-31007,PROMSVYAZBANK,PSB|PROMSVYAZBANK PJSC,Entity,RUSSIA,SDN,RU,Russia,Moscow,"Smirnovskaya Street 10, Moscow",SWIFT,PRMSRUMM,2022-02-24,Defence sector bank
+OFAC-31020,IGOR SECHIN,SECHIN IGOR IVANOVICH|I.I. SECHIN,Individual,RUSSIA,SDN,RU,Russia,Moscow,,Passport,720882778,2014-04-28,"Rosneft CEO, close Putin ally"
+OFAC-31021,GENNADY TIMCHENKO,TIMCHENKO GENNADY|G. TIMCHENKO,Individual,RUSSIA,SDN,RU,Russia,Geneva,,Passport,6406892,2014-03-20,Energy oligarch
+OFAC-22001,KOREA KWANGSON BANKING CORP,KKBC|KWANGSON BANK,Entity,DPRK,SDN,KP,North Korea,Pyongyang,"Pyongyang, DPRK",SWIFT,KBKORUMM,2009-06-18,Proliferation financing
+OFAC-22002,FOREIGN TRADE BANK OF DPRK,FTB DPRK|CHOSON HAEWON BANK,Entity,DPRK,SDN,KP,North Korea,Pyongyang,"Jungsong-dong, Central District",SWIFT,FTBKKORUMM,2005-09-20,Primary DPRK FX bank
+OFAC-33001,BELAGROPROMBANK,BELAGROPROM BANK|BAPB,Entity,BELARUS,SDN,BY,Belarus,Minsk,"Zolotaya Gorka 3, Minsk 220005",SWIFT,BAPBBY2X,2021-08-09,State agricultural bank
+OFAC-33002,BANK DABRABYT,DABRABYT|MTBank Belarus,Entity,BELARUS,SDN,BY,Belarus,Minsk,"Internatsionalnaya 44, Minsk",SWIFT,MTBKBY22,2021-08-09,Sberbank subsidiary Belarus
+OFAC-34001,MYANMA ECONOMIC BANK,MEB MYANMAR|MYANMAR ECONOMIC BANK,Entity,BURMA,SDN,MM,Myanmar,Naypyidaw,"Naypyidaw, Myanmar",Registration,MEB-001,2021-02-11,Military junta bank
+OFAC-35001,BANCO DE VENEZUELA,BANVENEZ|BANCO DE VENEZUELA SA,Entity,VENEZUELA,SDN,VE,Venezuela,Caracas,"Av. Universidad, Edificio Banco de Venezuela",SWIFT,BVENVECA,2019-08-05,State-owned bank
+OFAC-36001,AL-AQSA INTERNATIONAL FOUNDATION,AL AQSA FOUNDATION|AL-AQSA ISLAMIC CHARITABLE SOCIETY,Entity,SDGT,SDN,DE,Germany,Aachen,"Postfach 2223, Aachen",Registration,VR2624,2003-05-29,Hamas financing front
