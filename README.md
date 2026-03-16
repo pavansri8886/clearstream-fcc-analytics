@@ -1,169 +1,152 @@
-# clearstream-fcc-analytics
+# 🏦 Clearstream FCC Analytics Suite
 
-**Financial Crime Compliance Analytics Suite**
-A portfolio project replicating core FCC data workflows at a post-trade financial institution.
-Built for the Deutsche Börse Group — Intern Compliance, FCC Projects & Data Analyst Associate (Luxembourg).
+> **Financial Crime Compliance analytics built to mirror the real-world reporting workflows of a post-trade financial institution.**
 
----
-
-## Run Order
-
-```bash
-# 1. Install
-pip install -r requirements.txt
-
-# 2. Build sanctions reference lists (OFAC + UN + EU)
-python scripts/build_sanctions_lists.py
-
-# 3. Generate 600,000 synthetic Clearstream-style transactions
-python scripts/generate_transactions.py
-
-# 4. Run AML pipeline — dry run first (10 seconds)
-python src/pipeline.py --dry-run
-
-# 5. Full pipeline run (3–5 min)
-python src/pipeline.py
-
-# 6. Compute KPIs and summary data
-python src/aggregator.py
-
-# 7. Generate Excel compliance report
-python src/report_generator.py
-
-# 8. Generate PMO project tracker
-python src/pmo_generator.py
-
-# 9. Generate SAR register
-python src/sar_generator.py
-```
+This project replicates the core AML monitoring, sanctions screening, and PMO reporting work of a compliance team at **Clearstream Banking S.A., Luxembourg** — one of the world's two International Central Securities Depositories (ICSDs), regulated by the CSSF and subject to direct OFAC, UN, and EU sanctions obligations.
 
 ---
 
-## Project Structure
+## 📊 What This Project Delivers
+
+Three production-ready Excel workbooks — the kind of documents a compliance team actually hands to management.
+
+---
+
+### 📋 1. FCC Compliance Report
+`reports/fcc_compliance_report.xlsx`
+
+A full-year compliance dashboard built from screening 600,000 Clearstream-style transactions.
+
+| Sheet | Contents |
+|---|---|
+| 🎯 Executive Summary | KPI cards — transactions screened, alert rate, sanctions hits, SAR candidates |
+| 📄 Alert Log | Filterable log of all flagged transactions by severity and type |
+| 🚨 Sanctions Hits | Every match against OFAC, UN, and EU sanctions lists |
+| 📈 Monthly Trends | Alert volume by typology across 12 months — with bar chart |
+| 🌍 High-Risk Corridors | Top country pairs ranked by exposure |
+| 📅 Regulatory Calendar | CSSF, FATF, EBA, and AMLA key deadlines through 2026 |
+
+---
+
+### 📁 2. FCC Programme PMO Tracker
+`reports/fcc_project_status.xlsx`
+
+A weekly PMO status tracker across six live FCC compliance programmes — exactly what a compliance PMO intern would own and maintain.
+
+| Sheet | Contents |
+|---|---|
+| 🟢🟡🔴 Programme Dashboard | RAG status across all active projects at a glance |
+| 📌 Project Details | Milestone-by-milestone progress with completion status |
+| ✅ Action Log | Open actions, owners, due dates, and priorities |
+
+**Projects tracked:**
+- DORA ICT Incident Reporting Framework
+- AMLA Readiness Programme
+- FATF Travel Rule Implementation (R.16)
+- Sanctions Screening Tool Upgrade
+- CSSF Annual AML/CFT Questionnaire
+- KYC Refresh — Tier 1 Clients
+
+---
+
+### 🚨 3. SAR Register
+`reports/sar_register.xlsx`
+
+A Suspicious Activity Report register aligned with Luxembourg's **goAML** filing requirements and CSSF obligations under the Law of 12 November 2004.
+
+| Sheet | Contents |
+|---|---|
+| 📝 SAR Register | All SAR candidates — Filed, Under Review, or Monitoring |
+| ☑️ Filing Checklist | Step-by-step goAML submission requirements |
+| ⚖️ Regulatory Notes | STR obligations, tipping-off prohibition, 7-year retention rules |
+
+---
+
+## 🔍 What Was Analysed
+
+**600,000 synthetic transactions** mirroring real Clearstream SWIFT message types:
+
+| Message Type | Volume | Description |
+|---|---|---|
+| MT103 | 300,000 | Cross-border customer wire transfers |
+| MT540 | 198,000 | Securities settlements (ISIN, LEI, DVP/RVP) |
+| MT202 | 102,000 | Interbank fund transfers |
+
+**Screened against three real public sanctions watchlists:**
+
+| List | Source | Entities |
+|---|---|---|
+| OFAC SDN List | US Treasury | Iran, Russia, DPRK, Belarus, Venezuela |
+| UN Consolidated List | UN Security Council | Al-Qaeda, ISIS, DPRK proliferators |
+| EU Financial Sanctions Files | European Commission | Russia, Iran, Belarus, Syria |
+
+**Four FATF typologies detected:**
+
+| 🔴 Typology | What It Looks Like |
+|---|---|
+| Structuring | Multiple transactions just below €10,000 from the same sender within 72 hours |
+| Velocity Abuse | 20+ payments from the same entity within a single hour |
+| Large Transactions | Single transfers above €1,000,000 |
+| High-Risk Corridors | Any transaction involving a FATF grey-list jurisdiction |
+
+---
+
+## 📌 Key Results
+
+| Metric | Result |
+|---|---|
+| 💼 Transactions Screened | 600,000 |
+| 🚨 Sanctions Hits | 443 across OFAC, UN & EU lists |
+| 🔴 Structuring Cases | 8,984 |
+| 🌍 High-Risk Corridors | 9,186 |
+| 📊 Alert Rate | 3.71% |
+| ✅ Tests Passing | 108 / 108 |
+
+---
+
+## ⚖️ Regulatory Framework
+
+Every element of this project was built with reference to Clearstream's actual compliance obligations:
+
+| Regulation | What It Requires |
+|---|---|
+| **CSSF Regulation 12-02** | AML/CFT framework for Luxembourg regulated entities |
+| **EU AML Package** (AMLR + AMLD6) | Enhanced CDD, beneficial ownership registers, harmonised STR rules |
+| **AMLA** | New EU Anti-Money Laundering Authority — direct supervision from July 2026 |
+| **DORA** | ICT incident classification and reporting — in force January 2025 |
+| **FATF Recommendation 16** | Travel Rule for cross-border payment data — updated June 2025 |
+| **Luxembourg Law 12 Nov 2004** | STR/SAR filing obligations to CRF via goAML platform |
+
+---
+
+## 🛠️ Skills Demonstrated
+
+| Skill | How |
+|---|---|
+| **MS Excel** | Multi-sheet workbooks with conditional formatting, pivot-ready data, RAG indicators, charts |
+| **Compliance Knowledge** | AML typologies, sanctions screening, SAR filing, CSSF/FATF/AMLA regulatory framework |
+| **PMO Documentation** | RAG dashboards, milestone tracking, action logs, regulatory deadline calendars |
+| **Data Analysis** | 600k transactions across 3 data sources, rule-based detection, KPI aggregation |
+| **Python + pandas** | Automated pipeline, report generation, 108 unit tests |
+
+---
+
+## 📁 Project Structure
 
 ```
 clearstream-fcc-analytics/
-├── config/
-│   ├── settings.yaml              ← All AML thresholds in one place
-│   └── pmo_projects.yaml          ← FCC programme project registry
-│
-├── data/
-│   ├── raw/sanctions/             ← OFAC SDN + UN + EU sanctions lists
-│   ├── generated/                 ← 600,000 synthetic transactions
-│   └── processed/
-│       ├── alerts.csv             ← Pipeline output (all alerts)
-│       ├── summary_stats.csv      ← Pipeline statistics
-│       └── summary/               ← Aggregated KPIs (feeds reports)
-│           ├── kpis.csv
-│           ├── monthly_trends.csv
-│           ├── country_exposure.csv
-│           ├── top_alerts.csv
-│           ├── sar_candidates.csv
-│           └── alert_type_breakdown.csv
-│
-├── reports/                       ← Final deliverables (Excel)
-│   ├── fcc_compliance_report.xlsx ← Track 2: Compliance report
-│   ├── fcc_project_status.xlsx    ← Track 3: PMO tracker
-│   └── sar_register.xlsx          ← Track 3: SAR register
-│
-├── src/
-│   ├── schema.py                  ← Unified AlertRecord data model
-│   ├── screener.py                ← Sanctions name matching engine
-│   ├── detectors.py               ← AML rule detectors (FATF typologies)
-│   ├── pipeline.py                ← Main orchestrator (chunked)
-│   ├── aggregator.py              ← KPI computation layer
-│   ├── report_generator.py        ← Compliance report Excel
-│   ├── pmo_generator.py           ← PMO tracker Excel
-│   └── sar_generator.py           ← SAR register Excel
-│
-├── scripts/
-│   ├── build_sanctions_lists.py   ← Builds OFAC/UN/EU reference data
-│   └── generate_transactions.py   ← Generates 600k transactions
-│
-└── tests/
+├── 📊 reports/                     ← Excel deliverables (open these first)
+├── ⚙️  src/                         ← Analytics engine
+├── ⚙️  config/
+│   ├── settings.yaml               ← All AML thresholds — fully configurable
+│   └── pmo_projects.yaml           ← FCC programme project registry
+├── 📂 data/
+│   ├── raw/sanctions/              ← OFAC, UN, EU reference lists
+│   └── generated/                  ← 600,000 synthetic transactions
+├── 🔬 scripts/data_generation/     ← How the transaction data was built
+└── ✅ tests/                        ← 108 unit tests — all passing
 ```
 
 ---
 
-## Architecture
-
-```
-sanctions lists ──┐
-                  ├──▶ screener.py ──┐
-transactions ─────┤                  ├──▶ pipeline.py ──▶ alerts.csv
-                  └──▶ detectors.py ─┘                         │
-                                                                ▼
-                                                         aggregator.py
-                                                                │
-                                              ┌─────────────────┼─────────────────┐
-                                              ▼                 ▼                 ▼
-                                   report_generator    pmo_generator      sar_generator
-                                   (compliance rpt)    (PMO tracker)      (SAR register)
-```
-
----
-
-## What Each File Produces
-
-| File | Output | Sheets |
-|---|---|---|
-| `report_generator.py` | `fcc_compliance_report.xlsx` | Executive Summary, Alert Log, Sanctions Hits, Monthly Trends, High-Risk Corridors, Regulatory Calendar |
-| `pmo_generator.py` | `fcc_project_status.xlsx` | Programme Dashboard, Project Details, Action Log |
-| `sar_generator.py` | `sar_register.xlsx` | SAR Register, Filing Checklist, Regulatory Notes |
-
----
-
-## AML Rules Engine
-
-| Detector | FATF Typology | Rule |
-|---|---|---|
-| `SanctionsScreener` | Sanctions Evasion | Exact + fuzzy match vs OFAC/UN/EU watchlist |
-| `StructuringDetector` | Structuring / Smurfing | 3+ transactions €5k–€9,999 from same sender within 72h |
-| `VelocityDetector` | Rapid Movement | 20+ transactions from same entity within 1 hour |
-| `LargeTransactionDetector` | Large Cash | Single transaction ≥ €1,000,000 |
-| `HighRiskCorridorDetector` | High-Risk Jurisdiction | FATF grey-list country involved |
-
-All thresholds are in `config/settings.yaml` — no hardcoded numbers in logic.
-
----
-
-## Data Layer
-
-**600,000 synthetic transactions:**
-- MT103 — 300,000 cross-border wire transfers
-- MT540 — 198,000 securities settlements (ISIN, LEI, DVP/RVP)
-- MT202 — 102,000 interbank fund transfers
-
-**Real sanctions reference data:**
-- OFAC SDN List (US Treasury) — Iran, Russia, DPRK, Belarus, Venezuela
-- UN Security Council Consolidated List — Al-Qaeda, ISIS, DPRK proliferators
-- EU Financial Sanctions Files — Russia, Iran, Belarus, Syria
-
----
-
-## Regulatory Context
-
-Built to reflect the compliance environment at Clearstream Banking S.A.:
-
-- **CSSF Regulation 12-02** — AML/CFT framework Luxembourg
-- **EU AML Package** (AMLR + AMLD6 + AMLA) — 2025/2026
-- **DORA** — Digital Operational Resilience Act, January 2025
-- **FATF Recommendations** — R.16 updated June 2025
-- **Luxembourg Law 12 November 2004** — STR/SAR filing obligations
-
----
-
-## Pipeline Options
-
-```bash
-python src/pipeline.py --dry-run              # 1,000 rows per file (test)
-python src/pipeline.py --file mt103           # single file only
-python src/pipeline.py --chunk-size 5000      # smaller memory footprint
-python src/pipeline.py --fuzzy-threshold 90   # stricter name matching
-```
-
----
-
-## Tech Stack
-
-Python 3.10+ · pandas · openpyxl · rapidfuzz · PyYAML
+*Built as a portfolio project targeting the Deutsche Börse Group — Intern Compliance, FCC Projects & Data Analyst Associate (Luxembourg)*
