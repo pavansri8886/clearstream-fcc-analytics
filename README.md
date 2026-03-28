@@ -149,4 +149,4 @@ clearstream-fcc-analytics/
 
 ---
 
-*Built as a portfolio project targeting the Deutsche Börse Group — Intern Compliance, FCC Projects & Data Analyst Associate (Luxembourg)*
+*Built to demonstrate end-to-end financial crime compliance analytics — from raw transaction screening through AML typology detection, sanctions matching, and management-ready Excel reporting. Designed to reflect real-world FCC workflows at a regulated post-trade financial institution.*
