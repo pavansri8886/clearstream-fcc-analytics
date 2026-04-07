@@ -204,7 +204,7 @@ class TestToDict(unittest.TestCase):
         alert = _make_alert()
         d = alert.to_dict()
         self.assertIsNone(d["matched_entity_uid"])
-        self.assertIsNone(d["sar_narrative"])
+        self.assertNotIn("sar_narrative", d)  # excluded from CSV — multi-line document
         self.assertIsNone(d["cluster_id"])
 
 

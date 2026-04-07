@@ -3,17 +3,16 @@
 
 paths:
   sanctions_master:   data/raw/sanctions/combined_master.csv
-  mt103:              data/generated/transactions_mt103.csv
-  mt202:              data/generated/transactions_mt202.csv
-  mt540:              data/generated/transactions_mt540.csv
-  combined:           data/generated/transactions_combined.csv
-  ground_truth:       data/generated/ground_truth_labels.csv
+  mt103:              data/raw/transactions/transactions_mt103.csv
+  mt202:              data/raw/transactions/transactions_mt202.csv
+  mt540:              data/raw/transactions/transactions_mt540.csv
+  ground_truth:       data/raw/transactions/ground_truth_labels.csv
   alerts_output:      data/processed/alerts.csv
   summary_output:     data/processed/summary_stats.csv
   report_output:      reports/fcc_compliance_report.xlsx
 
 pipeline:
-  chunk_size: 10000         # rows processed at a time (memory safe)
+  chunk_size: 50000         # rows processed at a time (memory safe)
   fuzzy_match_threshold: 85 # minimum score for fuzzy name match (0-100)
 
 aml_rules:
@@ -27,18 +26,12 @@ aml_rules:
   # Velocity — abnormal transaction frequency
   velocity:
     max_transactions_per_hour: 20
-    max_transactions_per_day:  50
     window_hours: 24
 
   # Large cash / single transaction
   large_transaction:
     threshold_eur: 1000000    # EUR 1M single transaction flag
     high_risk_threshold_eur: 100000  # Lower threshold for high-risk countries
-
-  # Round-tripping — funds leave and return
-  round_trip:
-    window_days: 7
-    min_hops: 3
 
 sanctions_screening:
   # Which fields to screen per message type
@@ -67,3 +60,7 @@ sanctions_screening:
     - NG   # Nigeria
     - AE   # UAE (enhanced monitoring)
     - TR   # Turkey
+    - VN   # Vietnam
+    - PH   # Philippines
+    - HT   # Haiti
+    - JM   # Jamaica

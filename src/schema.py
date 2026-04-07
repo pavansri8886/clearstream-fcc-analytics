@@ -13,8 +13,7 @@ Fields are designed to satisfy three consumers:
   3. SAR register / PMO   → Track 3 documents
 
 This file has NO dependencies on any other project file.
-It is imported by: screener.py, detectors.py, pipeline.py,
-aggregator.py, report_generator.py, pmo_generator.py, sar_generator.py
+It is imported by: screener.py, detectors.py, pipeline.py, aggregator.py
 """
 
 from __future__ import annotations
@@ -22,6 +21,24 @@ from dataclasses import dataclass, field, asdict
 from typing import Optional
 import uuid
 from datetime import datetime, date
+
+
+# ── Shared helpers (imported by screener, detectors, aggregator) ──────────
+
+def _safe_float(val) -> float:
+    try:
+        return float(val or 0)
+    except (ValueError, TypeError):
+        return 0.0
+
+def _safe_int(val) -> int:
+    try:
+        return int(float(val or 0))
+    except (ValueError, TypeError):
+        return 0
+
+def _safe_str(val) -> str:
+    return str(val or "").strip()
 
 
 # ── ALL POSSIBLE COLUMNS IN alerts.csv ───────────────────────────────────
@@ -34,8 +51,7 @@ ALERT_COLUMNS = [
     "message_type",           # MT103 | MT202 | MT540
 
     # Classification
-    "alert_type",             # SANCTIONS_HIT | STRUCTURING | VELOCITY |
-                              # LARGE_TRANSACTION | HIGH_RISK_CORRIDOR
+    "alert_type",             # SANCTIONS_HIT | STRUCTURING | VELOCITY | LARGE_TRANSACTION | HIGH_RISK_CORRIDOR
     "alert_severity",         # HIGH | MEDIUM | LOW
     "aml_typology",           # FATF typology label
     "alert_status",           # OPEN | CLOSED | ESCALATED | FALSE_POSITIVE
@@ -69,9 +85,10 @@ ALERT_COLUMNS = [
     "programme",              # IRAN | RUSSIA | DPRK | SDGT etc.
     "sanctions_country",      # ISO-2 country of sanctioned entity
 
-    # SAR fields (NULL unless is_sar_candidate = True)
+    # SAR fields
     "is_sar_candidate",       # True if HIGH severity sanctions hit
-    "sar_narrative",          # auto-generated SAR text
+    # sar_narrative is excluded from CSV — it is a multi-line document
+    # generated on demand in reports.py (Sanctions sheet)
 
     # Description
     "description",            # human-readable alert description
@@ -160,9 +177,11 @@ class AlertRecord:
         return self
 
     def to_dict(self) -> dict:
-        """Serialize to dict with exact ALERT_COLUMNS order."""
+        """Serialize to dict with exact ALERT_COLUMNS order.
+        sar_narrative is excluded — it is a multi-line document that breaks
+        CSV structure. It is generated on demand in the SAR Excel report."""
         d = asdict(self)
-        # Return in column order, filling any missing with None
+        d.pop("sar_narrative", None)
         return {col: d.get(col) for col in ALERT_COLUMNS}
 
 

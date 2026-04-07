@@ -1,6 +1,7 @@
-data/generated/*.csv
 data/processed/
+data/raw/transactions/
 __pycache__/
 *.pyc
 .env
-Terminial-Result.docx
+.claude/
+~$*.xlsx

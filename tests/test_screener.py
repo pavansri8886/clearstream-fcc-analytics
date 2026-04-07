@@ -190,29 +190,32 @@ class TestSanctionsScreener(unittest.TestCase):
     # ── Message type field mapping ─────────────────────────────────────────
 
     def test_mt202_screens_ordering_institution(self):
+        # Pipeline normalises MT202 fields to sender_name/receiver_name before
+        # screener is called, so the test row already uses standard field names.
         row = {
             "transaction_id": "MT202-TEST-001",
-            "ordering_institution_name": "GAZPROMBANK",
-            "beneficiary_institution_name": "DEUTSCHE BANK AG",
+            "sender_name": "GAZPROMBANK",
+            "receiver_name": "DEUTSCHE BANK AG",
             "amount_eur": "1000000",
             "booking_date": "2024-01-01",
-            "ordering_institution_country": "RU",
-            "beneficiary_institution_country": "DE",
+            "sender_country": "RU",
+            "receiver_country": "DE",
             "currency": "EUR",
         }
         hits = self.screener.screen_row(row, "MT202")
         self.assertGreater(len(hits), 0)
-        self.assertEqual(hits[0].matched_field, "ordering_institution_name")
+        self.assertEqual(hits[0].matched_field, "sender_name")
 
     def test_mt540_screens_delivering_party(self):
+        # Pipeline normalises MT540 fields before screener is called.
         row = {
             "transaction_id": "MT540-TEST-001",
-            "delivering_party_name": "VTB BANK",
-            "receiving_party_name": "EUROCLEAR BANK SA",
-            "settlement_amount_eur": "5000000",
-            "trade_date": "2024-01-01",
-            "delivering_party_country": "RU",
-            "receiving_party_country": "BE",
+            "sender_name": "VTB BANK",
+            "receiver_name": "EUROCLEAR BANK SA",
+            "amount_eur": "5000000",
+            "booking_date": "2024-01-01",
+            "sender_country": "RU",
+            "receiver_country": "BE",
             "currency": "EUR",
         }
         hits = self.screener.screen_row(row, "MT540")

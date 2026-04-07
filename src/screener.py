@@ -30,34 +30,21 @@ from typing import Optional
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from schema import AlertRecord, determine_severity
+from config import CFG
+from schema import AlertRecord, determine_severity, _safe_float, _safe_str
 
 # ── Fuzzy backend ──────────────────────────────────────────────────────────
 try:
-    from rapidfuzz import fuzz
+    from rapidfuzz import fuzz, process as fuzz_process
     FUZZY_BACKEND = "rapidfuzz"
 except ImportError:
-    import difflib
+    fuzz_process = None
     FUZZY_BACKEND = "difflib"
 
-SANCTIONS_PATH = ROOT / "data" / "raw" / "sanctions" / "combined_master.csv"
+SANCTIONS_PATH = ROOT / CFG["paths"]["sanctions_master"]
 
-# ── Schema map: message type → fields to screen ───────────────────────────
-FIELD_MAP = {
-    "MT103": [("sender_name", "sender"), ("receiver_name", "receiver")],
-    "MT202": [("ordering_institution_name", "sender"),
-              ("beneficiary_institution_name", "receiver")],
-    "MT540": [("delivering_party_name", "sender"),
-              ("receiving_party_name", "receiver")],
-    "DELIVER_AGAINST_PAYMENT": [("delivering_party_name", "sender"),
-                                 ("receiving_party_name", "receiver")],
-    "RECEIVE_AGAINST_PAYMENT":  [("delivering_party_name", "sender"),
-                                  ("receiving_party_name", "receiver")],
-    "DELIVER_FREE":             [("delivering_party_name", "sender"),
-                                  ("receiving_party_name", "receiver")],
-    "RECEIVE_FREE":             [("delivering_party_name", "sender"),
-                                  ("receiving_party_name", "receiver")],
-}
+# After pipeline normalisation, every message type uses these two fields.
+FIELDS_TO_SCREEN = ["sender_name", "receiver_name"]
 
 
 @dataclass
@@ -89,17 +76,32 @@ class SanctionsScreener:
         self.fuzzy_threshold = fuzzy_threshold
         self._entities: list[SanctionedEntity] = []
         self._load(sanctions_path)
+
+        # Pre-build lookup structures for fast matching:
+        # _exact_lookup: normalised_alias → entity  (O(1) exact match)
+        # _all_aliases:  flat list of normalised aliases for process.extractOne
+        # _alias_to_entity: normalised_alias → entity (for fuzzy result lookup)
+        self._exact_lookup: dict[str, SanctionedEntity] = {}
+        self._all_aliases:  list[str] = []
+        self._alias_to_entity: dict[str, SanctionedEntity] = {}
+        for entity in self._entities:
+            for alias in entity.all_names:
+                norm = self._normalise(alias)
+                self._exact_lookup[norm] = entity
+                self._all_aliases.append(norm)
+                self._alias_to_entity[norm] = entity
+
         print(f"  [Screener] {len(self._entities)} sanctioned entities loaded "
-              f"| backend: {FUZZY_BACKEND} | threshold: {fuzzy_threshold}")
+              f"| {len(self._all_aliases)} aliases | backend: {FUZZY_BACKEND} "
+              f"| threshold: {fuzzy_threshold}")
 
     # ── Public ────────────────────────────────────────────────────────────
 
     def screen_row(self, row: dict, message_type: str) -> list[AlertRecord]:
         """Screen one transaction row. Returns list of AlertRecord (empty = clean)."""
-        fields = FIELD_MAP.get(message_type, [])
         alerts = []
 
-        for field_name, role in fields:
+        for field_name in FIELDS_TO_SCREEN:
             name = (row.get(field_name) or "").strip()
             if not name:
                 continue
@@ -109,17 +111,13 @@ class SanctionsScreener:
                 continue
 
             match_type, score = self._score(name, entity)
-            amount = _safe_float(row.get("amount_eur") or row.get("settlement_amount_eur"))
+            amount   = _safe_float(row.get("amount_eur"))
             severity = determine_severity("SANCTIONS_HIT", amount)
 
-            # Resolve counterparty names for unified schema
-            sender_name, receiver_name = _resolve_parties(row, message_type)
-            sender_country = _safe_str(row.get("sender_country")
-                                       or row.get("ordering_institution_country")
-                                       or row.get("delivering_party_country", ""))
-            receiver_country = _safe_str(row.get("receiver_country")
-                                         or row.get("beneficiary_institution_country")
-                                         or row.get("receiving_party_country", ""))
+            sender_name     = _safe_str(row.get("sender_name"))
+            sender_country  = _safe_str(row.get("sender_country"))
+            receiver_name   = _safe_str(row.get("receiver_name"))
+            receiver_country = _safe_str(row.get("receiver_country"))
 
             alert = AlertRecord(
                 transaction_id=_safe_str(row.get("transaction_id")),
@@ -171,33 +169,42 @@ class SanctionsScreener:
 
     def _match(self, name: str) -> Optional[SanctionedEntity]:
         norm = self._normalise(name)
-        # Exact pass
-        for entity in self._entities:
-            for alias in entity.all_names:
-                if self._normalise(alias) == norm:
-                    return entity
-        # Fuzzy pass
-        best_score, best_entity = 0, None
-        for entity in self._entities:
-            for alias in entity.all_names:
-                s = self._fuzzy_score(norm, self._normalise(alias))
-                if s > best_score:
-                    best_score, best_entity = s, entity
-        return best_entity if best_score >= self.fuzzy_threshold else None
+
+        # O(1) exact lookup — replaces the old O(n×m) loop
+        if norm in self._exact_lookup:
+            return self._exact_lookup[norm]
+
+        # Fuzzy lookup — rapidfuzz.process searches all aliases in C, not Python
+        if FUZZY_BACKEND == "rapidfuzz":
+            result = fuzz_process.extractOne(
+                norm, self._all_aliases,
+                scorer=fuzz.token_sort_ratio,
+                score_cutoff=self.fuzzy_threshold,
+            )
+            if result:
+                matched_alias, score, _ = result
+                return self._alias_to_entity[matched_alias]
+            return None
+
+        # Fallback: difflib (slow — only used if rapidfuzz not installed)
+        best_score, best_alias = 0, None
+        for alias in self._all_aliases:
+            s = int(__import__("difflib").SequenceMatcher(None, norm, alias).ratio() * 100)
+            if s > best_score:
+                best_score, best_alias = s, alias
+        return self._alias_to_entity[best_alias] if best_score >= self.fuzzy_threshold else None
 
     def _score(self, name: str, entity: SanctionedEntity) -> tuple[str, int]:
         norm = self._normalise(name)
-        for alias in entity.all_names:
-            if self._normalise(alias) == norm:
-                return "EXACT", 100
-        scores = [self._fuzzy_score(norm, self._normalise(a)) for a in entity.all_names]
-        return "FUZZY", max(scores)
-
-    def _fuzzy_score(self, a: str, b: str) -> int:
+        if norm in self._exact_lookup and self._exact_lookup[norm] is entity:
+            return "EXACT", 100
         if FUZZY_BACKEND == "rapidfuzz":
-            return int(fuzz.token_sort_ratio(a, b))
-        ratio = __import__("difflib").SequenceMatcher(None, a, b).ratio()
-        return int(ratio * 100)
+            aliases = [self._normalise(a) for a in entity.all_names]
+            result = fuzz_process.extractOne(norm, aliases, scorer=fuzz.token_sort_ratio)
+            return "FUZZY", result[1] if result else 0
+        scores = [int(__import__("difflib").SequenceMatcher(None, norm, self._normalise(a)).ratio() * 100)
+                  for a in entity.all_names]
+        return "FUZZY", max(scores)
 
     # ── Loader ────────────────────────────────────────────────────────────
 
@@ -222,29 +229,6 @@ class SanctionsScreener:
                     listing_date=row["listing_date"],
                     remarks=row["remarks"],
                 ))
-
-
-# ── Helpers ────────────────────────────────────────────────────────────────
-
-def _safe_float(val) -> float:
-    try:
-        return float(val or 0)
-    except (ValueError, TypeError):
-        return 0.0
-
-def _safe_str(val) -> str:
-    return str(val or "").strip()
-
-def _resolve_parties(row: dict, msg_type: str) -> tuple[str, str]:
-    """Extract sender/receiver names regardless of message type."""
-    if msg_type == "MT103":
-        return _safe_str(row.get("sender_name")), _safe_str(row.get("receiver_name"))
-    if msg_type == "MT202":
-        return (_safe_str(row.get("ordering_institution_name")),
-                _safe_str(row.get("beneficiary_institution_name")))
-    # MT540 variants
-    return (_safe_str(row.get("delivering_party_name")),
-            _safe_str(row.get("receiving_party_name")))
 
 
 # ── Quick test ─────────────────────────────────────────────────────────────

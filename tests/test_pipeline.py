@@ -50,39 +50,13 @@ def _make_mt103_rows(n=50, include_sanctions=True) -> list[dict]:
             "transaction_id": f"MT103-TEST-{i:05d}",
             "message_type": "MT103",
             "booking_date": ts.date().isoformat(),
-            "value_date": (ts + timedelta(days=2)).date().isoformat(),
             "timestamp": ts.isoformat(),
-            "booking_centre": "LU",
             "sender_name": sender,
-            "sender_lei": "TEST_LEI_SENDER",
-            "sender_bic": "TESTBIC1",
-            "sender_account": "DE12345678901234567890",
             "sender_country": "RU" if (include_sanctions and i == 5) else "DE",
             "receiver_name": f"RECEIVER BANK {i}",
-            "receiver_lei": "TEST_LEI_RECV",
-            "receiver_bic": "TESTBIC2",
-            "receiver_account": "LU98765432109876543210",
             "receiver_country": "LU",
-            "correspondent_bank_name": "DEUTSCHE BANK AG",
-            "correspondent_bank_bic": "DEUTDEDB",
-            "correspondent_bank_country": "DE",
-            "amount": str(50000 + i * 1000),
-            "currency": "EUR",
             "amount_eur": str(50000 + i * 1000),
-            "purpose_code": "TRAD",
-            "remittance_info": f"REF-{i:08d}",
-            "sender_is_sanctions_hit": "True" if (include_sanctions and i == 5) else "False",
-            "receiver_is_sanctions_hit": "False",
-            "sanctions_hit_name": "GAZPROMBANK" if (include_sanctions and i == 5) else "",
-            "sanctions_uid": "OFAC-31003" if (include_sanctions and i == 5) else "",
-            "sanctions_list_source": "OFAC-SDN" if (include_sanctions and i == 5) else "",
-            "sanctions_programme": "RUSSIA" if (include_sanctions and i == 5) else "",
-            "is_high_risk_jurisdiction": "True" if (include_sanctions and i == 5) else "False",
-            "high_risk_country": "RU" if (include_sanctions and i == 5) else "",
-            "aml_typology": "",
-            "typology_cluster_id": "",
-            "is_suspicious": "True" if (include_sanctions and i == 5) else "False",
-            "alert_status": "OPEN" if (include_sanctions and i == 5) else "CLEAR",
+            "currency": "EUR",
         })
     return rows
 
@@ -230,7 +204,7 @@ class TestPipelineEndToEnd(unittest.TestCase):
     def test_total_rows_processed_correct(self):
         pipeline = FccPipeline(chunk_size=50, dry_run=False, files=["mt103"])
         pipeline.run()
-        self.assertEqual(pipeline.stats["total_rows"], 100)
+        self.assertEqual(pipeline.stats.total_rows, 100)
 
     def test_alerts_have_derived_fields(self):
         pipeline = FccPipeline(chunk_size=50, dry_run=False, files=["mt103"])
@@ -247,19 +221,19 @@ class TestPipelineEndToEnd(unittest.TestCase):
     def test_dry_run_processes_limited_rows(self):
         pipeline = FccPipeline(chunk_size=50, dry_run=True, files=["mt103"])
         pipeline.run()
-        self.assertLessEqual(pipeline.stats["total_rows"], 1000)
+        self.assertLessEqual(pipeline.stats.total_rows, 1000)
 
     def test_stats_tracked_correctly(self):
         pipeline = FccPipeline(chunk_size=50, dry_run=False, files=["mt103"])
         pipeline.run()
-        self.assertGreaterEqual(pipeline.stats["total_alerts"], 0)
-        self.assertGreaterEqual(pipeline.stats["high_severity"], 0)
-        total = (pipeline.stats["sanctions"] +
-                 pipeline.stats["structuring"] +
-                 pipeline.stats["velocity"] +
-                 pipeline.stats["large_txn"] +
-                 pipeline.stats["high_risk"])
-        self.assertEqual(total, pipeline.stats["total_alerts"])
+        self.assertGreaterEqual(pipeline.stats.total_alerts, 0)
+        self.assertGreaterEqual(pipeline.stats.high_severity, 0)
+        total = (pipeline.stats.sanctions +
+                 pipeline.stats.structuring +
+                 pipeline.stats.velocity +
+                 pipeline.stats.large_txn +
+                 pipeline.stats.high_risk)
+        self.assertEqual(total, pipeline.stats.total_alerts)
 
 
 if __name__ == "__main__":
